@@ -6,6 +6,7 @@ import {fetchStarWars} from '../../features/StarWarsSlice';
 import CharacterItem from './CharacterItem';
 import {TouchableOpacity} from 'react-native-gesture-handler';
 import Loader from '../../components/Loader/Loader';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const HomeScreen = () => {
   const dispatch = useDispatch();
@@ -29,7 +30,7 @@ const HomeScreen = () => {
   }, [page]);
 
   return (
-    <View className="flex-1 bg-white">
+    <SafeAreaView className="flex-1 bg-white">
       <HeaderCount />
 
       {loading ? (
@@ -75,7 +76,7 @@ const HomeScreen = () => {
           <Text className="text-xl">No data availible ...</Text>
         </View>
       )}
-    </View>
+    </SafeAreaView>
   );
 };
 

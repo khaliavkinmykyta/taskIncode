@@ -2,12 +2,13 @@ import {View, Text} from 'react-native';
 import React from 'react';
 import {useRoute} from '@react-navigation/native';
 import {ScrollView} from 'react-native-gesture-handler';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const InfoScreen = () => {
   const route = useRoute();
   const {characterData} = route.params;
   return (
-    <View className="flex-1 bg-white p-4">
+    <SafeAreaView className="flex-1 bg-white p-4">
       <ScrollView className="gap-1">
         <Text className="font-bold text-xl text-center py-3">
           {characterData.name}
@@ -35,7 +36,7 @@ const InfoScreen = () => {
         <Text>Created: {characterData.created}</Text>
         <Text>Edited: {characterData.edited}</Text>
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 };
 
