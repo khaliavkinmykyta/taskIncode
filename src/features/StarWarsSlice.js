@@ -55,36 +55,35 @@ const StarWarsSlice = createSlice({
       state.favoriteCharacters = [];
     },
   },
+  extraReducers: builder => {
+    builder
+      .addCase(fetchStarWars.pending, state => {
+        state.status = 'loading';
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchStarWars.fulfilled, (state, action) => {
+        state.status = 'resolved';
+        state.loading = false;
 
-  extraReducers: {
-    [fetchStarWars.pending]: state => {
-      state.status = 'loading';
-      state.loading = true;
-      state.error = null;
-    },
-    [fetchStarWars.fulfilled]: (state, action) => {
-      state.status = 'resolved';
-      state.loading = false;
+        const newPageResults = action.payload.results;
 
-      const newPageResults = action.payload.results;
+        const favoriteCharacterNames = new Set(
+          state.favoriteCharacters.map(item => item.name),
+        );
 
-      const favoriteCharacterNames = new Set(
-        state.favoriteCharacters.map(item => item.name),
-      );
+        newPageResults.forEach(newCharacter => {
+          if (favoriteCharacterNames.has(newCharacter.name)) {
+            newCharacter.favorite = true;
+          }
+        });
 
-      newPageResults.forEach(newCharacter => {
-        if (favoriteCharacterNames.has(newCharacter.name)) {
-          newCharacter.favorite = true;
-        }
+        state.data = action.payload;
+      })
+      .addCase(fetchStarWars.rejected, state => {
+        state.status = 'rejected';
+        state.loading = false;
       });
-
-      state.data = action.payload;
-    },
-
-    [fetchStarWars.rejected]: state => {
-      state.status = 'rejected';
-      state.loading = false;
-    },
   },
 });
 
