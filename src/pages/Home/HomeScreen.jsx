@@ -42,8 +42,10 @@ const HomeScreen = () => {
               showsVerticalScrollIndicator={false}
               keyExtractor={item => item.name}
               renderItem={({item, index}) => {
-                if (index === data.results.length - 1) {
+                if (index === data.results.length-1 ) {
                   return (
+                    <>
+                    <CharacterItem character={item}/>
                     <View className="flex-row justify-between items-center p-4">
                       <TouchableOpacity
                         onPress={prevPage}
@@ -59,6 +61,7 @@ const HomeScreen = () => {
                         <Text className="text-white">Next Page</Text>
                       </TouchableOpacity>
                     </View>
+                    </>
                   );
                 } else {
                   return <CharacterItem character={item} />;

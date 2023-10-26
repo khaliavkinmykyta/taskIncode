@@ -1,6 +1,7 @@
 import {createSlice, createAsyncThunk} from '@reduxjs/toolkit';
+import produce from 'immer';
 
-// FETCH API
+// FETCH API by page
 export const fetchStarWars = createAsyncThunk(
   'starwars/fetchStarWars',
   async function (page) {
@@ -10,27 +11,48 @@ export const fetchStarWars = createAsyncThunk(
   },
 );
 
-// MAIN SLICE 
+// MAIN SLICE (status + data[] + favoriteCharacters[])
 const StarWarsSlice = createSlice({
   name: 'starwars',
   initialState: {
     data: [],
+    favoriteCharacters: [],
     loading: false,
     status: null,
     error: null,
   },
 
   reducers: {
-    addFavorite: (state, action) => {
+    changeFavorite: (state, action) => {
+      // find favorite in data
       const favorited = state.data.results.find(
         item => item.name === action.payload.name,
       );
+      //change to opposite value
       favorited.favorite = !favorited.favorite;
+
+      //create/renewe fav array
+      if (favorited.favorite) {
+        state.favoriteCharacters.push(favorited);
+      } else {
+        const index = state.favoriteCharacters.findIndex(
+          item => item.name === favorited.name,
+        );
+        if (index !== -1) {
+          state.favoriteCharacters.splice(index, 1);
+        }
+      }
     },
-    resetFavoriteForAllCharacters: (state) => {
-      state.data.results.forEach((item) => {
+    resetFavoriteForAllCharacters: state => {
+      state.data.results.forEach(item => {
         item.favorite = false;
       });
+
+      // erase of favoriteCharacters
+      state.favoriteCharacters.forEach(item => {
+        item.favorite = false;
+      });
+      state.favoriteCharacters = [];
     },
   },
 
@@ -43,46 +65,49 @@ const StarWarsSlice = createSlice({
     [fetchStarWars.fulfilled]: (state, action) => {
       state.status = 'resolved';
       state.loading = false;
+
+      const newPageResults = action.payload.results;
+
+      const favoriteCharacterNames = new Set(
+        state.favoriteCharacters.map(item => item.name),
+      );
+
+      newPageResults.forEach(newCharacter => {
+        if (favoriteCharacterNames.has(newCharacter.name)) {
+          newCharacter.favorite = true;
+        }
+      });
+
       state.data = action.payload;
     },
-    [fetchStarWars.rejected]: (state) => {
+
+    [fetchStarWars.rejected]: state => {
       state.status = 'rejected';
       state.loading = false;
-
     },
   },
 });
 
 export default StarWarsSlice.reducer;
-export const {addFavorite, resetFavoriteForAllCharacters} = StarWarsSlice.actions;
+export const {changeFavorite, resetFavoriteForAllCharacters} =
+  StarWarsSlice.actions;
 
 // Male Counter
 export const selectFavoriteMaleCharactersCount = state => {
-  const results = state.starwars.data?.results || []; 
-  const favoriteMaleCharacters = results.filter(
-    item => item.favorite && item.gender === 'male',
-  );
-
-  return favoriteMaleCharacters.length;
+  const favoriteCharacters = state.starwars.favoriteCharacters || [];
+  return favoriteCharacters.filter(item => item.gender === 'male').length;
 };
 
 // Female Counter
 export const selectFavoriteFemaleCharactersCount = state => {
-  const results = state.starwars.data?.results || []; 
-  const favoriteFemaleCharacters = results.filter(
-    item => item.favorite && item.gender === 'female',
-  );
-
-  return favoriteFemaleCharacters.length;
+  const favoriteCharacters = state.starwars.favoriteCharacters || [];
+  return favoriteCharacters.filter(item => item.gender === 'female').length;
 };
 
 // Other Counter
 export const selectFavoriteOtherCharactersCount = state => {
-  const results = state.starwars.data?.results || []; 
-  const favoriteOtherCharacters = results.filter(
-    item => item.favorite && item.gender !== 'male' && item.gender !== 'female',
-  );
-
-  return favoriteOtherCharacters.length;
+  const favoriteCharacters = state.starwars.favoriteCharacters || [];
+  return favoriteCharacters.filter(
+    item => item.gender !== 'male' && item.gender !== 'female',
+  ).length;
 };
-
