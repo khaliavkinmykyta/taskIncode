@@ -5,18 +5,14 @@ import {TouchableOpacity} from 'react-native-gesture-handler';
 import {useDispatch, useSelector} from 'react-redux';
 
 import {
-  selectFavoriteFemaleCharactersCount,
-  selectFavoriteMaleCharactersCount,
-  selectFavoriteOtherCharactersCount,
   resetFavoriteForAllCharacters,
+  selectFavoriteCharactersCountByGender,
 } from '../../features/StarWarsSlice';
 
 const HeaderCount = () => {
   const dispatch = useDispatch();
 
-  const maleCharacterCount = useSelector(selectFavoriteMaleCharactersCount);
-  const femaleCharacterCount = useSelector(selectFavoriteFemaleCharactersCount);
-  const otherCharacterCount = useSelector(selectFavoriteOtherCharactersCount);
+  const characterCounts = useSelector(selectFavoriteCharactersCountByGender);
 
   const handleResetFavorites = () => {
     dispatch(resetFavoriteForAllCharacters());
@@ -35,9 +31,9 @@ const HeaderCount = () => {
 
       {/* COUNTERS */}
       <View className="flex-row justify-between">
-        <Text className="">Female Fans - {femaleCharacterCount}</Text>
-        <Text className="">Male Fans - {maleCharacterCount}</Text>
-        <Text className="">Others - {otherCharacterCount}</Text>
+        <Text className="">Female Fans - {characterCounts.female}</Text>
+        <Text className="">Male Fans - {characterCounts.male}</Text>
+        <Text className="">Others - {characterCounts.other}</Text>
       </View>
     </View>
   );

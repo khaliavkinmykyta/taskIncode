@@ -1,5 +1,7 @@
 import {createSlice, createAsyncThunk} from '@reduxjs/toolkit';
 import produce from 'immer';
+import { createSelector } from 'reselect';
+
 
 // FETCH API by page
 export const fetchStarWars = createAsyncThunk(
@@ -91,22 +93,25 @@ export default StarWarsSlice.reducer;
 export const {changeFavorite, resetFavoriteForAllCharacters} =
   StarWarsSlice.actions;
 
-// Male Counter
-export const selectFavoriteMaleCharactersCount = state => {
-  const favoriteCharacters = state.starwars.favoriteCharacters || [];
-  return favoriteCharacters.filter(item => item.gender === 'male').length;
-};
 
-// Female Counter
-export const selectFavoriteFemaleCharactersCount = state => {
-  const favoriteCharacters = state.starwars.favoriteCharacters || [];
-  return favoriteCharacters.filter(item => item.gender === 'female').length;
-};
+// New Single Counter Selecetor 
+export const selectFavoriteCharactersCountByGender = createSelector(
+  state => state.starwars.favoriteCharacters || [],
+  favoriteCharacters => {
+    const maleCount = favoriteCharacters.filter(
+      item => item.gender === 'male',
+    ).length;
+    const femaleCount = favoriteCharacters.filter(
+      item => item.gender === 'female',
+    ).length;
+    const otherCount = favoriteCharacters.filter(
+      item => item.gender !== 'male' && item.gender !== 'female',
+    ).length;
 
-// Other Counter
-export const selectFavoriteOtherCharactersCount = state => {
-  const favoriteCharacters = state.starwars.favoriteCharacters || [];
-  return favoriteCharacters.filter(
-    item => item.gender !== 'male' && item.gender !== 'female',
-  ).length;
-};
+    return {
+      male: maleCount,
+      female: femaleCount,
+      other: otherCount,
+    };
+  }
+);
